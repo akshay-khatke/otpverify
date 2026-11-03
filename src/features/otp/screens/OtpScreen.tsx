@@ -49,7 +49,7 @@ export const OtpScreen: React.FC = () => {
     return otpApi.getVerifyLockoutTime(identifier);
   });
 
-  const initialResendWait = Math.max(30, otpApi.getResendLockoutTime(identifier));
+  const initialResendWait = Math.max(60, otpApi.getResendLockoutTime(identifier));
   const { secondsLeft, resendOtp, resetTimer } = useOtpTimer(initialResendWait);
 
   const otpInputRef = useRef<OtpInputRef>(null);
@@ -178,7 +178,7 @@ export const OtpScreen: React.FC = () => {
         'OTP Sent',
         `OTP Sent Successfully`
       );
-      resetTimer(30);
+      resetTimer(60);
       if (!autoFill) {
         handleClearOtp();
       }
@@ -255,7 +255,7 @@ export const OtpScreen: React.FC = () => {
               isLandscape && styles.subtitleLandscape,
             ]}>
             We have sent a 6-digit verification code to{' '}
-            <Text style={styles.highlightText}>{maskIdentifier(identifier)}</Text>
+            <Text style={styles.highlightText}>{'+91 - ' + identifier}</Text>
           </Text>
 
           <TouchableOpacity
@@ -357,20 +357,17 @@ export const OtpScreen: React.FC = () => {
             ) : null}
           </View>
 
+          {/* Resend OTP Row with live cooldown timer */}
           <View style={styles.resendRow}>
             <Text style={styles.resendInfo}>Didn't receive the code? </Text>
             <TouchableOpacity
               onPress={handleResend}
               disabled={!resendOtp || lockoutSecondsLeft > 0}>
-              <Text
-                style={[
-                  styles.resendText,
-                  (!resendOtp || lockoutSecondsLeft > 0) && styles.disabledText,
-                ]}>
-                {resendOtp && lockoutSecondsLeft === 0
-                  ? 'Resend OTP'
-                  : `(${secondsLeft}s)`}
-              </Text>
+              {resendOtp && lockoutSecondsLeft === 0 ? (
+                <Text style={styles.resendText}>Resend OTP</Text>
+              ) : (
+                <Text style={styles.countdownText}>({secondsLeft}s)</Text>
+              )}
             </TouchableOpacity>
           </View>
 
@@ -559,7 +556,7 @@ const styles = StyleSheet.create({
   lockoutCountdownNumber: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#D84315',
+    color: '#000000',
   },
   errorContainer: {
     flexDirection: 'row',
@@ -635,6 +632,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.primary,
     fontWeight: '600',
+  },
+  countdownText: {
+    fontSize: 14,
+    color: '#000000',
+    fontWeight: '700',
   },
   disabledText: {
     color: Colors.textSecondary,

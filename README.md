@@ -19,7 +19,7 @@ This is a robust, responsive React Native application for secure OTP authenticat
 - 6-box responsive OTP input with auto-focus & backspace navigation
 - Inline attempt warnings (`(4 attempts left)`)
 - "Too Many Attempts" rate limiting with live 60-second lockout countdown (`⏳ Try again in Xs`)
-- Resend OTP with 30-second cooldown timer
+- Resend OTP with 60-second cooldown timer
 - Data masking and privacy (`+91 *******736`, `j******e@example.com`)
 - Hardware-backed encrypted token storage (`react-native-keychain`)
 - Protected Home screen dashboard with logout functionality
@@ -33,7 +33,6 @@ This is a robust, responsive React Native application for secure OTP authenticat
 - **Navigation:** `@react-navigation/native`, `@react-navigation/native-stack`
 - **Security:** `react-native-keychain`
 - **Responsive Layout:** `react-native-safe-area-context`, `react-native-screens`
-- **Testing:** Jest
 
 ## Installation & Running
 
@@ -172,7 +171,7 @@ sequenceDiagram
 
 * 🔒 **Security & Privacy by Design:** In-memory sliding-window rate limiting prevents brute-force abuse; PII masking hides telephone numbers (`+91 *******736`) and email addresses (`j******e@example.com`); JWT session tokens are stored in hardware-backed encrypted keystores (`react-native-keychain`).
 * 📱 **Adaptive Cross-Device Responsiveness:** Dynamic 6-box OTP input dimensions calculate based on screen width via `useWindowDimensions()`, avoiding clipping on small screens (e.g. 320px) and overstretching on tablets. Large screens and tablets use a centered card layout (`maxWidth: 500`).
-* ⚙️ **Multi-ABI Android Build Pipeline:** Configured with `reactNativeArchitectures=arm64-v8a,armeabi-v7a,x86_64` to bundle native C++ Hermes binaries simultaneously for **PC Emulators** (`x86_64`) and **Physical Phones** (`arm64-v8a`).
+
 
 ---
 

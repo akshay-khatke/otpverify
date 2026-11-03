@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   lockoutCountdownNumber: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#D84315',
+    color: '#000000',
   },
   errorContainer: {
     flexDirection: 'row',

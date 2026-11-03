@@ -1,4 +1,4 @@
-import { apiClient, rateLimiter, RATE_LIMIT_RULES } from '../../../services';
+import { apiClient, rateLimiter, RATE_LIMIT_RULES, RateLimitError } from '../../../services';
 import { withLog } from '../../../utils';
 import {
   VerifyOtpRequest,
@@ -54,10 +54,21 @@ export const otpApi = {
               RATE_LIMIT_RULES.VERIFY_OTP
             );
             const remaining = check.remaining;
-            const attemptWarning =
-              remaining > 0
-                ? ` (${remaining} attempt${remaining > 1 ? 's' : ''} left)`
-                : '';
+
+            // When remaining reaches 0 (5th attempt failed), trigger lockout immediately!
+            if (remaining <= 0) {
+              const waitSec = check.retryAfterSeconds || 60;
+              reject(
+                new RateLimitError(
+                  `Too many attempts. Please wait ${waitSec} seconds before trying again.`,
+                  waitSec,
+                  0
+                )
+              );
+              return;
+            }
+
+            const attemptWarning = ` (${remaining} attempt${remaining > 1 ? 's' : ''} left)`;
             reject(
               new Error(
                 `Invalid OTP code${attemptWarning}.`
