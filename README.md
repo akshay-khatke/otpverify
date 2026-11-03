@@ -1,97 +1,205 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# OTP Verification App (`otpverifyapp`)
 
-# Getting Started
+A production-ready React Native mobile application implementing a **Feature-Based Architecture**, secure hardware-backed authentication storage, dynamic OTP verification, and Axios interceptors.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## 📱 Features
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- **Feature-Based Architecture**: Modular design where each domain (`auth`, `otp`, `home`) contains its own screens, components, API services, types, and hooks.
+- **Dynamic Random OTP Generation**: Random 6-digit codes generated per phone number for realistic testing.
+- **Interactive On-Screen Mock Badge**: Displays the active test OTP on screen with a single tap to auto-fill.
+- **6-Box OTP Input Component**: Auto-focus between inputs, backspace navigation, and multi-digit clipboard paste support.
+- **Resend Countdown Timer**: Built-in 30-second reverse countdown hook (`useOtpTimer`) with automatic enable/disable states.
+- **State-Driven Navigation (React Navigation v7)**: Conditional stack rendering. Automatically switches from `AuthNavigator` to `AppNavigator` when a token is present, and prevents back-button access to login screens once authenticated.
+- **Hardware-Backed Secure Storage**: Uses `react-native-keychain` (Android Keystore and iOS Keychain) with in-memory caching for secure token storage.
+- **Axios HTTP Client with Interceptors**:
+  - **Request Interceptor**: Automatically pulls the auth token from secure storage and attaches `Authorization: Bearer <token>`.
+  - **Response Interceptor**: Direct data unwrap, automatic token invalidation on `401 Unauthorized`, and user-friendly network/server error handling.
+- **Centralized Logger & Method Decorators**: Logs all requests, responses, and errors cleanly in development, automatically muted in production (`__DEV__ === false`).
+- **100% Strict TypeScript**: Fully typed routes, API models, navigation props, and component interfaces.
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
 
-```sh
-# Using npm
+## 📂 Project Architecture
+
+```text
+otpverifyapp/
+├── android/                         # Android native project files
+├── ios/                             # iOS native project files
+├── src/
+│   ├── assets/                      # Static assets (images, icons, fonts)
+│   │   └── .gitkeep
+│   │
+│   ├── components/                  # Shared global UI components
+│   │   ├── Button.tsx               # Reusable primary button component
+│   │   └── index.ts
+│   │
+│   ├── constants/                   # Global design constants and colors
+│   │   ├── colors.ts                # Color palette
+│   │   └── index.ts
+│   │
+│   ├── context/                     # Global state & React Context
+│   │   ├── AuthContext.tsx          # Authentication state management (login, logout, token check)
+│   │   └── index.ts
+│   │
+│   ├── features/                    # Feature Modules
+│   │   ├── auth/                    # Authentication feature
+│   │   │   ├── api/                 # Auth API endpoints (requestLoginOtp)
+│   │   │   ├── screens/             # LoginScreen.tsx
+│   │   │   ├── types/               # LoginRequest, LoginResponse
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── otp/                     # OTP Verification feature (Core Module)
+│   │   │   ├── api/                 # verifyOtp, resendOtp, dynamic OTP generator
+│   │   │   ├── components/          # OtpInput.tsx (6-box interactive input)
+│   │   │   ├── hooks/               # useOtpTimer.ts (30s countdown timer)
+│   │   │   ├── screens/             # OtpScreen.tsx (with on-screen test badge)
+│   │   │   ├── types/               # VerifyOtpRequest, VerifyOtpResponse
+│   │   │   └── index.ts
+│   │   │
+│   │   ├── home/                    # Post-authentication feature
+│   │   │   ├── screens/             # HomeScreen.tsx (with secure logout)
+│   │   │   └── index.ts
+│   │   │
+│   │   └── index.ts                 # Centralized features export
+│   │
+│   ├── navigation/                  # React Navigation setup
+│   │   ├── types.ts                 # Strongly-typed route parameters
+│   │   ├── AuthNavigator.tsx        # Login & OTP stack
+│   │   ├── AppNavigator.tsx         # Authenticated main app stack (Home)
+│   │   ├── RootNavigator.tsx        # Root container with conditional auth switching
+│   │   └── index.ts
+│   │
+│   ├── services/                    # Networking & storage services
+│   │   ├── apiClient.ts             # Axios instance with Request & Response interceptors
+│   │   ├── secureStorage.ts         # Encrypted Keystore/Keychain token management
+│   │   └── index.ts
+│   │
+│   ├── types/                       # Global shared TypeScript types
+│   │   └── index.ts
+│   │
+│   └── utils/                       # Shared utility functions
+│       ├── logger.ts                # Centralized logger, withLog, LogMethod
+│       ├── validation.ts            # Phone number & OTP validators
+│       └── index.ts
+│
+├── App.tsx                          # App entrypoint (SafeAreaProvider + AuthProvider)
+├── index.js                         # React Native registry entrypoint
+├── package.json
+└── tsconfig.json                    # Path aliases configured (@/* -> src/*)
+```
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- **Node.js**: >= 22.11.0
+- **JDK**: Java 17 (Microsoft OpenJDK or Eclipse Temurin)
+- **Android Studio**: Android SDK (API 34/35), Android SDK Platform-Tools, Android NDK
+- **Command line tools**: `npm` or `yarn`
+
+---
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd otpverifyapp
+   ```
+
+2. **Install JavaScript dependencies:**
+   ```bash
+   npm install
+   ```
+
+---
+
+## 🚀 Running the App
+
+### 1. Start Metro Bundler
+Start the Metro development server:
+```bash
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+### 2. Run on Android
+In a separate terminal window:
+```bash
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+### 3. Run on iOS (macOS only)
+```bash
+cd ios && pod install && cd ..
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+---
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## 🔑 Authentication & Testing Flow
 
-## Step 3: Modify your app
+1. **Login Screen**:
+   - Enter any 10-digit mobile number (e.g. `9876543210`).
+   - Tap **"Send OTP"**.
+   - A random 6-digit OTP will be generated, printed to your Metro terminal console, and sent to the verification screen.
 
-Now that you have successfully run the app, let's make changes!
+2. **OTP Verification Screen**:
+   - **Terminal Console Output**:
+     ```text
+     ====================================================
+     📱 [OTP SCREEN READY] Mobile Number: +91 9876543210
+     🔑 [RANDOM TEST OTP]: 482915
+     ====================================================
+     ```
+   - **On-Screen Helper**: A dedicated badge displays the active code:
+     `🎲 Random Generated OTP: 482915`
+   - **Tap to Fill**: Tap the badge to automatically populate the 6 input boxes.
+   - **Resend OTP**: When the 30s timer expires, tap "Resend OTP" to generate a brand new random code.
+   - Tap **"Verify Code"** to complete authentication.
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+3. **Home Screen**:
+   - The auth token is saved to Android Keystore / iOS Keychain.
+   - `RootNavigator` automatically unmounts the Auth stack and mounts `AppNavigator`.
+   - Tap **"Logout"** to clear the secure token and return to the Login screen.
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+---
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## 🌐 API Client & Interceptors Guide
 
-## Congratulations! :tada:
+The `apiClient` service wraps Axios and manages authentication headers automatically.
 
-You've successfully run and modified your React Native App. :partying_face:
+### Making API Requests
 
-### Now what?
+```typescript
+import { apiClient } from '@/services/apiClient';
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+// 1. GET Request (with query params)
+const users = await apiClient.get<UserResponse>('/users', { page: 1, limit: 10 });
 
-# Troubleshooting
+// 2. POST Request (with body)
+const result = await apiClient.post<LoginResponse>('/auth/login', { phoneNumber: '9876543210' });
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+// 3. PUT Request (with ID + body)
+const updated = await apiClient.put<UserResponse>('/users/123', { name: 'John Doe' });
 
-# Learn More
+// 4. DELETE Request
+await apiClient.delete('/users/123');
+```
 
-To learn more about React Native, take a look at the following resources:
+---
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+## 🧪 Verification & Type Checking
+
+To verify that all TypeScript code passes without errors:
+```bash
+npx tsc --noEmit
+```
+
+---
+
+## 📄 License
+This project is private and intended for internal development.
