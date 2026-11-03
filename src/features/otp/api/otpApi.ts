@@ -37,7 +37,7 @@ export const otpApi = {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           if (data.otp === activeOtp) {
-            console.log(`✅ [OTP MATCHED] For: ${targetId}, Code: ${data.otp}`);
+            console.log(`OTP verified successfully For: ${targetId}, Code: ${data.otp}`);
 
             rateLimiter.reset(`VERIFY_OTP:${targetId}`);
             rateLimiter.reset(`SEND_OTP:${targetId}`);
@@ -48,7 +48,7 @@ export const otpApi = {
               token: `mock_jwt_token_${targetId}_${Date.now()}`,
             });
           } else {
-            console.log(`OTP MISMATCH Entered: ${data.otp}, Expected: ${activeOtp}`);
+            console.log(`OTP not matched For: ${targetId}, Code: ${data.otp}`);
             const check = rateLimiter.checkLimit(
               `VERIFY_OTP:${targetId}`,
               RATE_LIMIT_RULES.VERIFY_OTP
@@ -74,7 +74,7 @@ export const otpApi = {
     async (data: ResendOtpRequest): Promise<ResendOtpResponse> => {
       const targetId = data.identifier || data.phoneNumber || '';
 
-      // 1. Rate Limit Check: Max 3 sends per 60 seconds
+
       rateLimiter.assertAllowed(
         `SEND_OTP:${targetId}`,
         RATE_LIMIT_RULES.SEND_OTP
@@ -82,10 +82,8 @@ export const otpApi = {
 
       const newOtp = generateRandomOtp(targetId);
 
-      console.log('====================================================');
-      console.log(`NEW RANDOM OTP RESENT Destination: ${targetId}`);
-      console.log(`RANDOM OTP CODE: ${newOtp}`);
-      console.log('====================================================');
+      console.log(`New Random OTP Resent Destination : ${targetId}`);
+      console.log(`Random OTP Code: ${newOtp}`);
 
       return new Promise((resolve) => {
         setTimeout(() => {

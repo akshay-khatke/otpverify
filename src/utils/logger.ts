@@ -5,37 +5,34 @@ export const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
 export const logger = {
   log: (tag: string, ...args: any[]) => {
     if (isDev) {
-      console.log(`[${tag}]`, ...args);
+      console.log(`${tag}`, ...args);
     }
   },
   info: (tag: string, ...args: any[]) => {
     if (isDev) {
-      console.info(`ℹ️ [${tag}]`, ...args);
+      console.info(`${tag}`, ...args);
     }
   },
   warn: (tag: string, ...args: any[]) => {
     if (isDev) {
-      console.warn(`⚠️ [${tag}]`, ...args);
+      console.warn(`${tag}`, ...args);
     }
   },
   error: (tag: string, ...args: any[]) => {
     if (isDev) {
-      console.error(`❌ [${tag}]`, ...args);
+      console.error(`${tag}`, ...args);
     }
   },
 };
 
-/**
- * Higher-Order Function 
- * Wraps any function/API call to automatically log arguments, responses, and errors.
- */
+
 export const withLog = <T extends (...args: any[]) => any>(
   fn: T,
   label: string
 ): T => {
   return ((...args: any[]) => {
     if (isDev) {
-      console.log(`🚀 [${label}] Request:`, args);
+      console.log(`${label} Request:`, args);
     }
     try {
       const res = fn(...args);
@@ -43,34 +40,31 @@ export const withLog = <T extends (...args: any[]) => any>(
         return res
           .then((val) => {
             if (isDev) {
-              console.log(`✅ [${label}] Response:`, val);
+              console.log(`${label} Response:`, val);
             }
             return val;
           })
           .catch((err) => {
             if (isDev) {
-              console.error(`❌ [${label}] Error:`, err);
+              console.error(`${label} Error:`, err);
             }
             throw err;
           });
       }
       if (isDev) {
-        console.log(`✅ [${label}] Response:`, res);
+        console.log(`${label} Response:`, res);
       }
       return res;
     } catch (err) {
       if (isDev) {
-        console.error(`❌ [${label}] Error:`, err);
+        console.error(`${label} Error:`, err);
       }
       throw err;
     }
   }) as T;
 };
 
-/**
- * Method Decorator (for class methods)
- * e.g. @LogMethod('AuthService')
- */
+
 export function LogMethod(tag?: string) {
   return function (
     _target: any,
@@ -90,20 +84,20 @@ export function LogMethod(tag?: string) {
         return result
           .then((res) => {
             if (isDev) {
-              console.log(`✅ [${label}] Resolved:`, res);
+              console.log(`${label} Resolved:`, res);
             }
             return res;
           })
           .catch((err) => {
             if (isDev) {
-              console.error(`❌ [${label}] Rejected:`, err);
+              console.error(`${label} Rejected:`, err);
             }
             throw err;
           });
       }
 
       if (isDev) {
-        console.log(`✅ [${label}] Result:`, result);
+        console.log(`${label} Result:`, result);
       }
       return result;
     };

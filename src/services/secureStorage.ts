@@ -4,14 +4,11 @@ import { logger } from '../utils';
 const TOKEN_SERVICE = 'com.otpverifyapp.auth_token';
 const PHONE_SERVICE = 'com.otpverifyapp.user_phone';
 
-// In-memory cache for fast synchronous access
 let cachedToken: string | null = null;
 let cachedPhone: string | null = null;
 
 export const secureStorage = {
-  /**
-   * Securely saves the token to device keychain (Android Keystore / iOS Keychain)
-   */
+
   saveToken: async (token: string): Promise<boolean> => {
     try {
       cachedToken = token;
@@ -26,9 +23,6 @@ export const secureStorage = {
     }
   },
 
-  /**
-   * Retrieves the stored token from secure storage
-   */
   getToken: async (): Promise<string | null> => {
     try {
       if (cachedToken) {
@@ -50,9 +44,7 @@ export const secureStorage = {
     }
   },
 
-  /**
-   * Securely saves the phone number
-   */
+
   savePhoneNumber: async (phone: string): Promise<boolean> => {
     try {
       cachedPhone = phone;
@@ -66,9 +58,7 @@ export const secureStorage = {
     }
   },
 
-  /**
-   * Retrieves the stored phone number
-   */
+
   getPhoneNumber: async (): Promise<string | null> => {
     try {
       if (cachedPhone) {
@@ -90,9 +80,7 @@ export const secureStorage = {
     }
   },
 
-  /**
-   * Removes all auth credentials from secure storage (used on logout)
-   */
+
   clearToken: async (): Promise<boolean> => {
     try {
       cachedToken = null;
@@ -111,9 +99,7 @@ export const secureStorage = {
     }
   },
 
-  /**
-   * Gets cached token synchronously
-   */
+
   getCachedToken: (): string | null => {
     return cachedToken;
   },

@@ -1,13 +1,4 @@
-/**
- * Centralized Masking Utilities
- * Masks phone numbers and emails for user privacy and security.
- */
 
-/**
- * Masks phone numbers:
- *   maskPhoneNumber("9876543736")     => "+91 *******736"
- *   maskPhoneNumber("+919876543736")  => "+91 *******736"
- */
 export const maskPhoneNumber = (
   phone?: string | null,
   visibleTrailingDigits = 3,
@@ -17,10 +8,8 @@ export const maskPhoneNumber = (
     return '';
   }
 
-  // Remove all non-numeric characters
   const cleanDigits = phone.replace(/[^0-9]/g, '');
 
-  // Extract last 10 digits if country code is present
   const nationalNumber =
     cleanDigits.length > 10 ? cleanDigits.slice(-10) : cleanDigits;
 
@@ -34,11 +23,7 @@ export const maskPhoneNumber = (
   return `${countryCode} ${maskedPart}${visiblePart}`;
 };
 
-/**
- * Masks emails:
- *   maskEmail("john.doe@gmail.com") => "j***e@gmail.com"
- *   maskEmail("abc@yahoo.com")      => "a*c@yahoo.com"
- */
+
 export const maskEmail = (email?: string | null): string => {
   if (!email || !email.includes('@')) {
     return email || '';
@@ -57,9 +42,7 @@ export const maskEmail = (email?: string | null): string => {
   return `${firstChar}${'*'.repeat(maskedLength)}${lastChar}@${domain}`;
 };
 
-/**
- * Universal helper that masks either email or phone depending on format
- */
+
 export const maskIdentifier = (identifier?: string | null): string => {
   if (!identifier) return '';
   if (identifier.includes('@')) {

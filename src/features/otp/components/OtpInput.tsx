@@ -33,8 +33,6 @@ export const OtpInput = forwardRef<OtpInputRef, OtpInputProps>(
     const inputs = useRef<Array<TextInputInstance | null>>([]);
     const { width } = useWindowDimensions();
 
-    // Dynamically calculate responsive box sizing based on available screen width
-    // Ensures boxes never overflow on small phones (e.g. 320px) and stay neatly centered on tablets
     const maxContainerWidth = Math.min(width - 32, 420);
     const gap = maxContainerWidth < 340 ? 4 : 8;
     const totalGaps = gap * (length - 1);
@@ -64,7 +62,6 @@ export const OtpInput = forwardRef<OtpInputRef, OtpInputProps>(
     const handleChangeText = (text: string, index: number) => {
       const clearText = text.replace(/[^0-9]/g, '');
 
-      // Case 1: Pasting multiple digits directly (via context menu Paste or keyboard suggestion)
       if ((!value[index] && clearText.length > 1) || clearText.length > 2) {
         const pasteOtp = clearText.slice(0, length);
         onChangeOtp(pasteOtp);
@@ -73,7 +70,6 @@ export const OtpInput = forwardRef<OtpInputRef, OtpInputProps>(
         return;
       }
 
-      // Case 2: Overwriting an existing digit in a box
       if (clearText.length === 2 && value[index]) {
         const nextChar = clearText.slice(-1);
         const otpArray = value.split('');
@@ -86,7 +82,6 @@ export const OtpInput = forwardRef<OtpInputRef, OtpInputProps>(
         return;
       }
 
-      // Case 3: Normal single digit typing or deletion
       const otpArray = value.split('');
       otpArray[index] = clearText;
       const newOtp = otpArray.join('');

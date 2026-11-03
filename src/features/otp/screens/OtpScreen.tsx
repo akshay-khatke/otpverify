@@ -34,12 +34,10 @@ export const OtpScreen: React.FC = () => {
   const { isSmallDevice, isTablet, isLandscape, contentMaxWidth, horizontalPadding } =
     useResponsive();
 
-  // Track the dynamically generated random OTP
   const [randomOtp, setRandomOtp] = useState<string>(() => {
     return route.params?.initialOtp || getActiveOtp(identifier);
   });
 
-  // If autoFill is enabled from login screen, pre-fill with generated OTP
   const [otp, setOtp] = useState<string>(() => {
     return autoFill ? route.params?.initialOtp || getActiveOtp(identifier) : '';
   });
@@ -47,38 +45,31 @@ export const OtpScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Rate limit "Too Many Attempts" live countdown timer for verification
   const [lockoutSecondsLeft, setLockoutSecondsLeft] = useState<number>(() => {
     return otpApi.getVerifyLockoutTime(identifier);
   });
 
-  // Standard resend OTP timer (30s cooldown between sends)
   const initialResendWait = Math.max(30, otpApi.getResendLockoutTime(identifier));
   const { secondsLeft, resendOtp, resetTimer } = useOtpTimer(initialResendWait);
 
-  // Ref to directly control OtpInput (clearing and focusing)
   const otpInputRef = useRef<OtpInputRef>(null);
 
-  // Print random OTP clearly in console
   useEffect(() => {
-    console.log('====================================================');
-    console.log(`📱 [OTP SCREEN READY] Identifier: ${identifier} (${loginType})`);
-    console.log(`🔑 [RANDOM TEST OTP]: ${randomOtp}`);
-    console.log(`⚡ [AUTO-FILL ACTIVE]: ${autoFill}`);
+    console.log(`OTP Screen ready Identifier: ${identifier} (${loginType})`);
+    console.log(`Random Test OTP: ${randomOtp}`);
+    console.log(`Auto-Fill Active: ${autoFill}`);
     if (lockoutSecondsLeft > 0) {
-      console.log(`⏳ [ACTIVE LOCKOUT]: ${lockoutSecondsLeft}s remaining`);
+      console.log(`Active Lockout: ${lockoutSecondsLeft}s remaining`);
     }
-    console.log('====================================================');
   }, [identifier, loginType, randomOtp, autoFill, lockoutSecondsLeft]);
 
-  // Live countdown timer for rate limit lockout
   useEffect(() => {
     if (lockoutSecondsLeft <= 0) return;
 
     const interval = setInterval(() => {
       setLockoutSecondsLeft((prev) => {
         if (prev <= 1) {
-          setErrorMessage(null); // Clear lockout error when timer hits 0
+          setErrorMessage(null);
           return 0;
         }
         return prev - 1;
@@ -144,7 +135,6 @@ export const OtpScreen: React.FC = () => {
         await login(res.token, identifier);
       }
     } catch (err: any) {
-      // Catch rate limit error and launch live countdown timer
       if (err instanceof RateLimitError || err.retryAfterSeconds) {
         const waitSec = err.retryAfterSeconds || 60;
         setLockoutSecondsLeft(waitSec);
@@ -268,7 +258,6 @@ export const OtpScreen: React.FC = () => {
             <Text style={styles.highlightText}>{maskIdentifier(identifier)}</Text>
           </Text>
 
-          {/* On-screen Randomly Generated OTP Badge with Copy Code */}
           <TouchableOpacity
             style={[styles.mockBadge, isCopied && styles.mockBadgeCopied]}
             activeOpacity={0.8}
@@ -279,14 +268,14 @@ export const OtpScreen: React.FC = () => {
                   styles.mockBadgeTitle,
                   isCopied && styles.mockBadgeTitleCopied,
                 ]}>
-                🎲 Generated OTP
+                Generated OTP
               </Text>
               <Text
                 style={[
                   styles.mockBadgeAction,
                   isCopied && styles.mockBadgeActionCopied,
                 ]}>
-                {isCopied ? 'Copied ✓' : '📋 Copy Code'}
+                {isCopied ? 'Copied' : 'Copy Code'}
               </Text>
             </View>
             <Text
@@ -299,20 +288,18 @@ export const OtpScreen: React.FC = () => {
             </Text>
           </TouchableOpacity>
 
-          {/* 1-Click Quick Paste Banner when Code is Copied */}
           {isCopied && otp.length < 6 && lockoutSecondsLeft === 0 ? (
             <TouchableOpacity
               style={styles.quickPasteBanner}
               activeOpacity={0.8}
               onPress={handlePasteCode}>
               <Text style={styles.quickPasteBannerText}>
-                📋 Click here to paste{' '}
+                Click here to paste{' '}
                 <Text style={styles.quickPasteBannerCode}>{randomOtp}</Text>
               </Text>
             </TouchableOpacity>
           ) : null}
 
-          {/* Responsive 6-box OTP Input */}
           <OtpInput
             ref={otpInputRef}
             length={6}
@@ -321,10 +308,8 @@ export const OtpScreen: React.FC = () => {
             editable={lockoutSecondsLeft === 0}
           />
 
-          {/* Too Many Attempts Live Countdown Lockout Banner */}
           {lockoutSecondsLeft > 0 ? (
             <View style={styles.lockoutBanner}>
-              <Text style={styles.lockoutIcon}>⏳</Text>
               <View style={styles.lockoutTextContainer}>
                 <Text style={styles.lockoutTitle}>Too Many Attempts</Text>
                 <Text style={styles.lockoutDesc}>
@@ -338,12 +323,10 @@ export const OtpScreen: React.FC = () => {
             </View>
           ) : errorMessage ? (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorIcon}>⚠️</Text>
               <Text style={styles.errorText}>{errorMessage}</Text>
             </View>
           ) : null}
 
-          {/* Action Buttons: Paste Code and Clear OTP */}
           <View style={styles.actionRow}>
             <TouchableOpacity
               style={[
@@ -360,7 +343,7 @@ export const OtpScreen: React.FC = () => {
                   styles.pasteButtonText,
                   lockoutSecondsLeft > 0 && styles.disabledText,
                 ]}>
-                📋 Paste Code
+                Paste Code
               </Text>
             </TouchableOpacity>
 
@@ -374,7 +357,6 @@ export const OtpScreen: React.FC = () => {
             ) : null}
           </View>
 
-          {/* Resend OTP Row with live cooldown timer */}
           <View style={styles.resendRow}>
             <Text style={styles.resendInfo}>Didn't receive the code? </Text>
             <TouchableOpacity
@@ -392,7 +374,6 @@ export const OtpScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Verify Button with live timer display when locked out */}
           <Button
             title={
               lockoutSecondsLeft > 0

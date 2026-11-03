@@ -31,12 +31,11 @@ export const LoginScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [lockoutSecondsLeft, setLockoutSecondsLeft] = useState<number>(0);
 
-  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { isSmallDevice, isTablet, isLandscape, contentMaxWidth, horizontalPadding } =
     useResponsive();
 
-  // Active countdown timer when rate limit is hit
   useEffect(() => {
     if (lockoutSecondsLeft <= 0) return;
 
@@ -232,7 +231,7 @@ export const LoginScreen: React.FC = () => {
                   isSmallDevice && styles.tabTextSmall,
                   loginMode === 'phone' && styles.tabTextActive,
                 ]}>
-                📱 Phone Number
+                Phone Number
               </Text>
             </TouchableOpacity>
 
@@ -249,7 +248,7 @@ export const LoginScreen: React.FC = () => {
                   isSmallDevice && styles.tabTextSmall,
                   loginMode === 'email' && styles.tabTextActive,
                 ]}>
-                ✉️ Email Address
+                Email Address
               </Text>
             </TouchableOpacity>
           </View>
@@ -290,10 +289,8 @@ export const LoginScreen: React.FC = () => {
             />
           )}
 
-          {/* Too Many Attempts Live Countdown Lockout Banner */}
           {lockoutSecondsLeft > 0 ? (
             <View style={styles.lockoutBanner}>
-              <Text style={styles.lockoutIcon}>⏳</Text>
               <View style={styles.lockoutTextContainer}>
                 <Text style={styles.lockoutTitle}>Too Many Attempts</Text>
                 <Text style={styles.lockoutDesc}>
@@ -307,12 +304,11 @@ export const LoginScreen: React.FC = () => {
             </View>
           ) : errorMessage ? (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorIcon}>⚠️</Text>
               <Text style={styles.errorText}>{errorMessage}</Text>
             </View>
           ) : null}
 
-          {/* Check / Uncheck Auto-fill Option */}
+
           <TouchableOpacity
             style={[
               styles.checkboxContainer,
@@ -340,7 +336,7 @@ export const LoginScreen: React.FC = () => {
           <Button
             title={
               lockoutSecondsLeft > 0
-                ? `⏳ Try again in ${lockoutSecondsLeft}s`
+                ? `Try again in ${lockoutSecondsLeft}s`
                 : 'Send OTP'
             }
             onPress={onSendOtp}
