@@ -19,7 +19,7 @@ const instance: AxiosInstance = axios.create({
   },
 });
 
-// Request Interceptor
+// 2. Request Interceptor (attaches secure token and logs request)
 instance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     try {
@@ -40,7 +40,7 @@ instance.interceptors.request.use(
   }
 );
 
-// Response Interceptor
+// 3. Response Interceptor (handles data extraction and global error handling)
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
     logger.info('API:Response', `${response.status} from ${response.config.url}`);
@@ -64,6 +64,14 @@ instance.interceptors.response.use(
         case 404:
           // Not Found
           break;
+        case 429: {
+          // Too Many Requests: Rate limit reached on server
+          const retryAfter = error.response.headers?.['retry-after'];
+          const message = retryAfter
+            ? `Too many requests. Please wait ${retryAfter} seconds before trying again.`
+            : (data?.message || 'Rate limit reached. Please wait a moment before trying again.');
+          return Promise.reject(message);
+        }
         case 500:
           // Internal Server Error
           break;
@@ -104,5 +112,6 @@ export const apiClient = {
     return res as unknown as T;
   },
 
+  // Direct access to Axios instance
   raw: instance,
 };

@@ -1,4 +1,4 @@
-import { apiClient } from '../../../services';
+import { apiClient, rateLimiter, RATE_LIMIT_RULES } from '../../../services';
 import { withLog } from '../../../utils';
 import { generateRandomOtp } from '../../otp/api/otpApi';
 import { LoginRequest, LoginResponse } from '../types';
@@ -6,7 +6,13 @@ import { LoginRequest, LoginResponse } from '../types';
 export const authApi = {
   requestLoginOtp: withLog(
     async (data: LoginRequest): Promise<LoginResponse> => {
-      // Generate a dynamic random 6-digit OTP
+      // 1. Client-Side Rate Limit Check: max 3 requests per 60 seconds
+      rateLimiter.assertAllowed(
+        `SEND_OTP:${data.phoneNumber}`,
+        RATE_LIMIT_RULES.SEND_OTP
+      );
+
+      // 2. Generate a dynamic random 6-digit OTP
       const randomOtp = generateRandomOtp(data.phoneNumber);
 
       console.log('====================================================');
@@ -18,11 +24,11 @@ export const authApi = {
         setTimeout(() => {
           resolve({
             success: true,
-            message: `OTP sent successfully!`,
+            message: 'OTP sent successfully!',
             requestId: `req_${Date.now()}`,
             generatedOtp: randomOtp,
           });
-        }, 1000);
+        }, 800);
       });
     },
     'AuthApi:requestLoginOtp'
