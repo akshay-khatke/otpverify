@@ -6,25 +6,21 @@ import { LoginRequest, LoginResponse } from '../types';
 export const authApi = {
   requestLoginOtp: withLog(
     async (data: LoginRequest): Promise<LoginResponse> => {
-      // 1. Client-Side Rate Limit Check: max 3 requests per 60 seconds
       rateLimiter.assertAllowed(
-        `SEND_OTP:${data.phoneNumber}`,
+        `SEND_OTP:${data.identifier}`,
         RATE_LIMIT_RULES.SEND_OTP
       );
 
-      // 2. Generate a dynamic random 6-digit OTP
-      const randomOtp = generateRandomOtp(data.phoneNumber);
+      const randomOtp = generateRandomOtp(data.identifier);
 
-      console.log('====================================================');
-      console.log(`📱 [NEW RANDOM OTP GENERATED] Mobile: +91 ${data.phoneNumber}`);
-      console.log(`🔑 [RANDOM OTP CODE]: ${randomOtp}`);
-      console.log('====================================================');
+      console.log(`New Random OTP Generated: ${data.identifier} (${data.type.toUpperCase()})`);
+      console.log(`New Random OTP Code: ${randomOtp}`);
 
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve({
             success: true,
-            message: 'OTP sent successfully!',
+            message: `OTP sent successfully to your ${data.type}!`,
             requestId: `req_${Date.now()}`,
             generatedOtp: randomOtp,
           });
@@ -33,4 +29,11 @@ export const authApi = {
     },
     'AuthApi:requestLoginOtp'
   ),
+
+  getSendOtpLockoutTime: (identifier: string): number => {
+    return rateLimiter.getRemainingTime(
+      `SEND_OTP:${identifier}`,
+      RATE_LIMIT_RULES.SEND_OTP
+    );
+  },
 };

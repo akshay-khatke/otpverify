@@ -1,5 +1,8 @@
+export type LoginMode = 'phone' | 'email';
+
 export interface LoginRequest {
-  phoneNumber: string;
+  identifier: string; // phone number or email
+  type: LoginMode;
 }
 
 export interface LoginResponse {

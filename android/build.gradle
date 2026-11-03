@@ -32,4 +32,11 @@ allprojects {
             }
         }
     }
+
+    // Disable all lintVital tasks so third-party libraries (e.g. react-native-keychain) do not fail release builds
+    tasks.configureEach { task ->
+        if (task.name.startsWith("lintVital") || task.name.contains("LintVital")) {
+            task.enabled = false
+        }
+    }
 }

@@ -5,6 +5,19 @@ export interface RateLimitConfig {
   windowMs: number;    // Time window in milliseconds (e.g. 60000ms = 1 min)
 }
 
+export class RateLimitError extends Error {
+  public retryAfterSeconds: number;
+  public remaining: number;
+
+  constructor(message: string, retryAfterSeconds: number, remaining: number = 0) {
+    super(message);
+    this.name = 'RateLimitError';
+    this.retryAfterSeconds = retryAfterSeconds;
+    this.remaining = remaining;
+    Object.setPrototypeOf(this, RateLimitError.prototype);
+  }
+}
+
 // Default presets for common actions
 export const RATE_LIMIT_RULES: Record<string, RateLimitConfig> = {
   SEND_OTP: {
@@ -82,7 +95,7 @@ class ClientRateLimiter {
 
   /**
    * Helper that checks the limit and records the request if allowed.
-   * Throws an error immediately if the limit is exceeded.
+   * Throws a RateLimitError immediately if the limit is exceeded.
    */
   public assertAllowed(
     key: string,
@@ -90,11 +103,24 @@ class ClientRateLimiter {
   ): void {
     const status = this.checkLimit(key, config);
     if (!status.allowed) {
-      throw new Error(
-        `Too many attempts. Please wait ${status.retryAfterSeconds} seconds before trying again.`
+      throw new RateLimitError(
+        `Too many attempts. Please wait ${status.retryAfterSeconds} seconds before trying again.`,
+        status.retryAfterSeconds,
+        status.remaining
       );
     }
     this.recordRequest(key);
+  }
+
+  /**
+   * Returns how many seconds the user must wait until allowed again (0 if not limited)
+   */
+  public getRemainingTime(
+    key: string,
+    config: RateLimitConfig = RATE_LIMIT_RULES.DEFAULT
+  ): number {
+    const status = this.checkLimit(key, config);
+    return status.allowed ? 0 : status.retryAfterSeconds;
   }
 
   /**

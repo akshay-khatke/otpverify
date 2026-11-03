@@ -1,6 +1,7 @@
 export interface VerifyOtpRequest {
-  phoneNumber: string;
+  identifier: string; // phone number or email
   otp: string;
+  phoneNumber?: string;
 }
 
 export interface VerifyOtpResponse {
@@ -10,7 +11,8 @@ export interface VerifyOtpResponse {
 }
 
 export interface ResendOtpRequest {
-  phoneNumber: string;
+  identifier: string; // phone number or email
+  phoneNumber?: string;
 }
 
 export interface ResendOtpResponse {

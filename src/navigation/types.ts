@@ -2,7 +2,13 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type AuthStackParamList = {
   Login: undefined;
-  OtpVerification: { phoneNumber: string; initialOtp?: string };
+  OtpVerification: {
+    identifier: string;
+    loginType?: 'phone' | 'email';
+    initialOtp?: string;
+    phoneNumber?: string;
+    autoFill?: boolean;
+  };
 };
 
 export type AppStackParamList = {
